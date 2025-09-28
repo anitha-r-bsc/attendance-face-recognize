@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Camera Capture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+<div class="bg-white shadow-lg rounded-xl p-6 max-w-md w-full animate-fadeIn">
+    <h2 class="text-2xl font-bold mb-4 text-center">Face Attendance Capture</h2>
+
+    <!-- Video Preview -->
+    <video id="video" class="w-full h-64 rounded-lg border border-gray-300 mb-4 object-cover" autoplay playsinline></video>
+
+    <!-- Hidden canvas -->
+    <canvas id="canvas" class="hidden w-full h-64"></canvas>
+
+    <!-- Submit Button -->
+    <button id="captureBtn" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 transition">
+        Submit
+    </button>
+
+    <p id="status" class="text-gray-600 text-center">Point your camera and press Submit</p>
+</div>
+
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    const captureBtn = document.getElementById('captureBtn');
+    const status = document.getElementById('status');
+
+    // Start webcam
+    async function startVideo() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            video.srcObject = stream;
+        } catch (err) {
+            console.error(err);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Camera Access Denied',
+                text: err.message
+            });
+        }
+    }
+
+    startVideo();
+
+    // Capture & submit
+    captureBtn.addEventListener('click', async () => {
+        status.textContent = "Processing...";
+        // Draw video frame to canvas
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Convert to Blob
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], "capture.jpg", { type: "image/jpeg" });
+            const formData = new FormData();
+            formData.append("image", file);
+
+            try {
+                const response = await fetch("/attendance/mark", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.status === 400) {
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Attendance Error',
+                        text: result.message || 'You already marked attendance today.'
+                    });
+                } else if (!response.ok) {
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.message || 'Something went wrong!'
+                    });
+                } else {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: result.message || 'Attendance marked successfully!',
+                        timer: 2500,
+                        showConfirmButton: false
+                    });
+                    status.textContent = "Attendance marked!";
+                }
+            } catch (err) {
+                console.error(err);
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Upload Failed',
+                    text: err.message
+                });
+            } finally {
+                status.textContent = "Point your camera and press Submit";
+            }
+        }, "image/jpeg", 0.9);
+    });
+</script>
+
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
+</style>
+
+</body>
+</html>

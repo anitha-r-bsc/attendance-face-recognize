@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Student Attendance</title>
+    <style>
+        table { border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 5px 10px; text-align: center; }
+        .present { background-color: #c8e6c9; } /* green */
+        .absent { background-color: #ffcdd2; }  /* red */
+    </style>
+</head>
+<body>
+<h2>Attendance for [[${month}]] / [[${year}]]</h2>
+
+<!-- Month/Year Form -->
+<form th:action="@{/students/student-attendance}" method="get">
+    <input type="hidden" name="studentId" th:value="${studentId}" />
+    <label for="month">Month:</label>
+    <select name="month" id="month">
+        <option th:each="m : ${#numbers.sequence(1,12)}"
+                th:value="${m}"
+                th:text="${m}"
+                th:selected="${m == month}"></option>
+    </select>
+
+    <label for="year">Year:</label>
+    <select name="year" id="year">
+        <option th:each="y : ${#numbers.sequence(2020,2030)}"
+                th:value="${y}"
+                th:text="${y}"
+                th:selected="${y == year}"></option>
+    </select>
+
+    <button type="submit">View</button>
+</form>
+
+<table>
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="entry : ${attendance}">
+        <td th:text="${#temporals.format(entry.key, 'yyyy-MM-dd')}"></td>
+        <td th:text="${entry.value}" th:classappend="${entry.value == 'Present'} ? 'present' : 'absent'"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

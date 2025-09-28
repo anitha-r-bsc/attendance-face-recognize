@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Student</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+<div class="bg-white shadow-lg rounded-xl p-6 max-w-lg w-full animate-fadeIn">
+    <h2 class="text-2xl font-bold mb-6 text-center">Student Registration</h2>
+
+    <form id="registerForm" class="space-y-4">
+
+        <div>
+            <label class="block font-semibold mb-1">Register Number</label>
+            <input type="text" name="registerNumber" required
+                   class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            <p class="text-red-500 text-sm mt-1 hidden">Register Number is required</p>
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Name</label>
+            <input type="text" name="name" required
+                   class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            <p class="text-red-500 text-sm mt-1 hidden">Name is required</p>
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Date of Birth</label>
+            <input type="date" name="dob" required
+                   class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            <p class="text-red-500 text-sm mt-1 hidden">Date of Birth is required</p>
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Gender</label>
+            <select name="gender" required
+                    class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+            <p class="text-red-500 text-sm mt-1 hidden">Gender is required</p>
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Email</label>
+            <input type="email" name="email" required
+                   class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            <p class="text-red-500 text-sm mt-1 hidden">Email is required</p>
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Phone</label>
+            <input type="text" name="phoneNumber" required
+                   class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            <p class="text-red-500 text-sm mt-1 hidden">Phone number is required</p>
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Address</label>
+            <input type="text" name="address" required
+                   class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            <p class="text-red-500 text-sm mt-1 hidden">Address is required</p>
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Course</label>
+            <input type="text" name="course" required
+                   class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            <p class="text-red-500 text-sm mt-1 hidden">Course is required</p>
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Current Year</label>
+            <select name="year" required
+                    class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select Year</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+            <p class="text-red-500 text-sm mt-1 hidden">Current year is required</p>
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Joined Year</label>
+            <input type="number" name="joinedYear" min="2000" max="2100" required
+                   class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            <p class="text-red-500 text-sm mt-1 hidden">Joined year is required</p>
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Upload Face Image</label>
+            <input type="file" id="imageFile" accept="image/*" required class="w-full"/>
+            <p class="text-red-500 text-sm mt-1 hidden">Face image is required</p>
+            <img id="preview" class="mt-2 w-32 h-32 object-cover rounded hidden"/>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 transition">
+            Register
+        </button>
+    </form>
+</div>
+
+<script>
+    const form = document.getElementById('registerForm');
+    const imageInput = document.getElementById('imageFile');
+    const preview = document.getElementById('preview');
+
+    // Image preview
+    imageInput.addEventListener('change', () => {
+        const file = imageInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                preview.src = reader.result;
+                preview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.classList.add('hidden');
+        }
+    });
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault(); // Prevent default form submission
+
+        let valid = true;
+
+        // Validate all required fields
+        const inputs = form.querySelectorAll('input[required], select[required]');
+        inputs.forEach(input => {
+            const errorMsg = input.nextElementSibling;
+            if (!input.value || (input.type === 'file' && input.files.length === 0)) {
+                input.classList.add('border-red-500');
+                errorMsg.classList.remove('hidden');
+                valid = false;
+            } else {
+                input.classList.remove('border-red-500');
+                errorMsg.classList.add('hidden');
+            }
+        });
+
+        if (!valid) return; // Stop if validation fails
+
+        submitForm(); // Call AJAX
+    });
+
+    async function submitForm() {
+        const formData = new FormData(form);
+        const file = imageInput.files[0];
+
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const base64String = reader.result;
+
+            const body = {
+                registerNumber: formData.get("registerNumber"),
+                name: formData.get("name"),
+                dob: formData.get("dob"),
+                gender: formData.get("gender"),
+                email: formData.get("email"),
+                phoneNumber: formData.get("phoneNumber"),
+                address: formData.get("address"),
+                course: formData.get("course"),
+                year: parseInt(formData.get("year")),
+                joinedYear: parseInt(formData.get("joinedYear")),
+                image: base64String
+            };
+
+            try {
+                const response = await fetch('/attendance/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                });
+
+                const result = await response.json();
+
+                if (response.status === 400) {
+                    Swal.fire({icon: 'error', title: 'Already Registered', text: result.message || 'Student already exists.'});
+                } else if (!response.ok) {
+                    Swal.fire({icon: 'error', title: 'Error', text: result.message || 'Failed to register student.'});
+                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: result.message || 'Student registered successfully!',
+                        timer: 2500,
+                        showConfirmButton: false
+                    });
+                    form.reset();
+                    preview.classList.add('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire({icon: 'error', title: 'Error', text: 'Something went wrong!'});
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
+
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
+</style>
+
+</body>
+</html>

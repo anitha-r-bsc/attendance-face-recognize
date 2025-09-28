@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4">
+
+<div class="mx-auto bg-white rounded-xl shadow-lg p-6">
+    <h2 class="text-2xl font-bold mb-4 text-center">Student List</h2>
+
+    <!-- Search Form -->
+    <form method="get" th:action="@{/students}" class="flex flex-col sm:flex-row gap-2 mb-4">
+        <input type="text" name="keyword" placeholder="Search by name, email, or register number"
+               th:value="${keyword}"
+               class="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+        <button type="submit"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition">
+            Search
+        </button>
+    </form>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+        <table class="border border-gray-200 rounded-lg overflow-hidden">
+            <thead class="bg-gray-200">
+            <tr>
+                <th class="px-4 py-2 text-left">Register Number</th>
+                <th class="px-4 py-2 text-left">Name</th>
+                <th class="px-4 py-2 text-left">DOB</th>
+                <th class="px-4 py-2 text-left">Gender</th>
+                <th class="px-4 py-2 text-left">Email</th>
+                <th class="px-4 py-2 text-left">Phone</th>
+<!--                <th class="px-4 py-2 text-left">Address</th>-->
+                <th class="px-4 py-2 text-left">Course</th>
+                <th class="px-4 py-2 text-left">Year</th>
+                <th class="px-4 py-2 text-left">Joined Year</th>
+                <th class="px-4 py-2 text-left">show attendance</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+            <tr th:each="student : ${students}" class="hover:bg-gray-100 transition">
+                <td class="px-4 py-2 whitespace-nowrap" th:text="${student.registerNumber}">123</td>
+                <td class="px-4 py-2 whitespace-nowrap" th:text="${student.name}">Alice</td>
+                <td class="px-4 py-2 whitespace-nowrap" th:text="${student.dob}">2000-01-01</td>
+                <td class="px-4 py-2 whitespace-nowrap" th:text="${student.gender}">Female</td>
+                <td class="px-4 py-2 whitespace-nowrap" th:text="${student.email}">alice@example.com</td>
+                <td class="px-4 py-2 whitespace-nowrap" th:text="${student.phoneNumber}">1234567890</td>
+<!--                <td class="px-4 py-2 whitespace-nowrap" th:text="${student.address}">Some address</td>-->
+                <td class="px-4 py-2 whitespace-nowrap" th:text="${student.course}">B.Tech</td>
+                <td class="px-4 py-2 whitespace-nowrap" th:text="${student.year}">2</td>
+                <td class="px-4 py-2 whitespace-nowrap" th:text="${student.joinedYear}">2020</td>
+                <td>
+                    <a th:href="@{/students/student-attendance(
+                    studentId=${student.id},
+                    month=${currentMonth},
+                    year=${currentYear})}"
+                       class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded">
+                        View
+                    </a>
+                </td>
+
+            </tr>
+
+            <!-- Default message if no students -->
+            <tr th:if="${#lists.isEmpty(students)}">
+                <td colspan="10" class="px-4 py-2 text-center text-gray-500">No students found</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
